@@ -1,3 +1,10 @@
+/* ================================================
+   FILE: resources/css/app.css
+   FUNGSI: Entry point untuk semua CSS
+   ================================================ */
+
+/* Import Bootstrap CSS */
+/* Kita import di sini agar ikut ter-compile oleh Vite dan bisa di-minify saat production */
 @import "bootstrap/dist/css/bootstrap.min.css";
 
 /* Import Bootstrap Icons */

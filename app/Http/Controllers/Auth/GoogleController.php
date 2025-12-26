@@ -287,9 +287,4 @@ class GoogleController extends Controller
             // ↑ Role default untuk user baru
         ]);
     }
-    public function __construct()
-{
-    $this->middleware('guest')->except('callback');
-}
-
 }

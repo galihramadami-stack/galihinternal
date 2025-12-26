@@ -1,3 +1,8 @@
+// ================================================
+// FILE: vite.config.js
+// FUNGSI: Konfigurasi bundler untuk compile assets
+// ================================================
+
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 
