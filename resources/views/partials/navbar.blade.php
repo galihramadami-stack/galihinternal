@@ -6,7 +6,7 @@ FUNGSI: Navigation bar untuk customer
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
     <div class="container">
         {{-- Logo & Brand --}}
-        <a class="navbar-brand text-primary" href="{{ route('home') }}">
+        <a class="navbar-brand text-success" href="{{ route('home') }}">
             <i class="bi bi-bag-heart-fill me-2"></i>
             TokoOnline
         </a>

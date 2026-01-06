@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Services\MidtransService;
 
 class OrderController extends Controller
 {
@@ -27,19 +28,48 @@ class OrderController extends Controller
     /**
      * Menampilkan detail satu pesanan.
      */
-    public function show(Order $order)
+    public function show(Order $order, MidtransService $midtransService) // Tambahkan MidtransService di sini
+{
+    if ($order->user_id !== auth()->id()) {
+        abort(403, 'Anda tidak memiliki akses ke pesanan ini.');
+    }
+
+    $order->load(['items.product', 'items.product.primaryImage']);
+
+    // LOGIKA BARU: Jika status pending dan belum ada token di DB, buatkan dulu
+    if ($order->status === 'pending' && !$order->snap_token) {
+        try {
+            $snapToken = $midtransService->createSnapToken($order);
+            $order->update(['snap_token' => $snapToken]);
+        } catch (\Exception $e) {
+            // Jika gagal konek ke Midtrans, biarkan null atau log error
+            $snapToken = null;
+        }
+    } else {
+        $snapToken = $order->snap_token;
+    }
+
+    return view('orders.show', compact('order', 'snapToken'));
+}
+    /**
+     * Menampilkan halaman status pembayaran sukses.
+     */
+    public function success(Order $order)
     {
-        // 1. Authorize (Security Check)
-        // User A TIDAK BOLEH melihat pesanan User B.
-        // Kita cek apakah ID pemilik order sama dengan ID user yang login.
         if ($order->user_id !== auth()->id()) {
             abort(403, 'Anda tidak memiliki akses ke pesanan ini.');
         }
+        return view('orders.success', compact('order'));
+    }
 
-        // 2. Load relasi detail
-        // Kita butuh data items dan gambar produknya untuk ditampilkan di invoice view.
-        $order->load(['items.product', 'items.product.primaryImage']);
-
-        return view('orders.show', compact('order'));
+    /**
+     * Menampilkan halaman status pembayaran pending.
+     */
+    public function pending(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki akses ke pesanan ini.');
+        }
+        return view('orders.pending', compact('order'));
     }
 }

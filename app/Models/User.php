@@ -13,6 +13,7 @@ class User extends Authenticatable
 
     /**
      * Kolom yang boleh diisi secara mass-assignment.
+     * Ini mencegah vulnerability mass-assignment.
      */
     protected $fillable = [
         'name',
@@ -26,7 +27,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Kolom yang disembunyikan saat serialisasi.
+     * Kolom yang disembunyikan saat serialisasi ke JSON/array.
      */
     protected $hidden = [
         'password',
@@ -34,7 +35,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Casting otomatis.
+     * Casting tipe data otomatis.
      */
     protected function casts(): array
     {
@@ -55,20 +56,11 @@ class User extends Authenticatable
     }
 
     /**
-     * User memiliki banyak wishlist record.
+     * User memiliki banyak item wishlist.
      */
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
-    }
-
-    /**
-     * User memiliki banyak produk melalui tabel wishlists.
-     */
-    public function wishlistProducts()
-    {
-        return $this->belongsToMany(Product::class, 'wishlists')
-                    ->withTimestamps();
     }
 
     /**
@@ -77,6 +69,15 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Relasi many-to-many ke products melalui wishlists.
+     */
+    public function wishlistProducts()
+    {
+        return $this->belongsToMany(Product::class, 'wishlists')
+                    ->withTimestamps();
     }
 
     // ==================== HELPER METHODS ====================
@@ -102,7 +103,7 @@ class User extends Authenticatable
      */
     public function hasInWishlist(Product $product): bool
     {
-        return $this->wishlistProducts()
+        return $this->wishlists()
                     ->where('product_id', $product->id)
                     ->exists();
     }

@@ -1,10 +1,10 @@
 <?php
-// app/Models/Product.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -39,46 +39,33 @@ class Product extends Model
 
         static::creating(function ($product) {
             if (empty($product->slug)) {
-                $product->slug = Str::slug($product->name);
+                $slug = Str::slug($product->name);
+                $count = static::where('slug', 'like', "{$slug}%")->count();
 
-                // Pastikan slug unik
-                $count = static::where('slug', 'like', $product->slug . '%')->count();
-                if ($count > 0) {
-                    $product->slug .= '-' . ($count + 1);
-                }
+                $product->slug = $count > 0
+                    ? "{$slug}-" . ($count + 1)
+                    : $slug;
             }
         });
     }
 
     // ==================== RELATIONSHIPS ====================
 
-    /**
-     * Produk termasuk dalam satu kategori.
-     */
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-    /**
-     * Produk memiliki banyak gambar.
-     */
     public function images()
     {
         return $this->hasMany(ProductImage::class)->orderBy('sort_order');
     }
 
-    /**
-     * Gambar utama produk.
-     */
     public function primaryImage()
     {
         return $this->hasOne(ProductImage::class)->where('is_primary', true);
     }
 
-    /**
-     * Item pesanan yang mengandung produk ini.
-     */
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
@@ -86,65 +73,45 @@ class Product extends Model
 
     // ==================== ACCESSORS ====================
 
-    /**
-     * Harga yang ditampilkan (diskon atau normal).
-     */
     public function getDisplayPriceAttribute(): float
     {
         return $this->discount_price ?? $this->price;
     }
 
-    /**
-     * Format harga untuk tampilan.
-     * Contoh: Rp 1.500.000
-     */
     public function getFormattedPriceAttribute(): string
     {
         return 'Rp ' . number_format($this->display_price, 0, ',', '.');
     }
 
-    /**
-     * Format harga asli (sebelum diskon).
-     */
     public function getFormattedOriginalPriceAttribute(): string
     {
         return 'Rp ' . number_format($this->price, 0, ',', '.');
     }
 
-    /**
-     * Persentase diskon.
-     */
-    public function getDiscountPercentageAttribute(): int
-    {
-        if (!$this->has_discount) {
-            return 0;
-        }
-        return round((($this->price - $this->discount_price) / $this->price) * 100);
-    }
-
-    /**
-     * Cek apakah produk memiliki diskon.
-     */
     public function getHasDiscountAttribute(): bool
     {
         return $this->discount_price !== null
             && $this->discount_price < $this->price;
     }
 
-    /**
-     * URL gambar utama atau placeholder.
-     */
-    public function getImageUrlAttribute(): string
+    public function getDiscountPercentageAttribute(): int
     {
-        if ($this->primaryImage) {
-            return $this->primaryImage->image_url;
+        if (! $this->has_discount) {
+            return 0;
         }
-        return asset('images/no-image.png');
+
+        return (int) round(
+            (($this->price - $this->discount_price) / $this->price) * 100
+        );
     }
 
-    /**
-     * Cek apakah produk tersedia (aktif dan ada stok).
-     */
+    public function getImageUrlAttribute(): string
+    {
+        return $this->primaryImage
+            ? $this->primaryImage->image_url
+            : asset('images/no-image.png');
+    }
+
     public function getIsAvailableAttribute(): bool
     {
         return $this->is_active && $this->stock > 0;
@@ -152,44 +119,37 @@ class Product extends Model
 
     // ==================== SCOPES ====================
 
-    /**
-     * Filter produk aktif.
-     */
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * Filter produk unggulan.
-     */
-    public function scopeFeatured($query)
+    public function scopeFeatured(Builder $query): Builder
     {
         return $query->where('is_featured', true);
     }
 
-    /**
-     * Filter produk yang tersedia (ada stok).
-     */
-    public function scopeInStock($query)
+    public function scopeInStock(Builder $query): Builder
     {
         return $query->where('stock', '>', 0);
     }
 
     /**
-     * Filter berdasarkan kategori (menggunakan slug).
+     * 🔥 INI YANG KEMARIN BIKIN ERROR
      */
-    public function scopeByCategory($query, string $categorySlug)
+    public function scopeAvailable(Builder $query): Builder
     {
-        return $query->whereHas('category', function($q) use ($categorySlug) {
+        return $query->active()->inStock();
+    }
+
+    public function scopeByCategory(Builder $query, string $categorySlug): Builder
+    {
+        return $query->whereHas('category', function ($q) use ($categorySlug) {
             $q->where('slug', $categorySlug);
         });
     }
 
-    /**
-     * Pencarian produk.
-     */
-    public function scopeSearch($query, string $keyword)
+    public function scopeSearch(Builder $query, string $keyword): Builder
     {
         return $query->where(function ($q) use ($keyword) {
             $q->where('name', 'like', "%{$keyword}%")
@@ -197,10 +157,7 @@ class Product extends Model
         });
     }
 
-    /**
-     * Filter berdasarkan range harga.
-     */
-    public function scopePriceRange($query, float $min, float $max)
+    public function scopePriceRange(Builder $query, float $min, float $max): Builder
     {
         return $query->whereBetween('price', [$min, $max]);
     }

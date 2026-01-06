@@ -3,7 +3,7 @@
      FUNGSI: Footer website
      ================================================ --}}
 
-<footer class="bg-dark text-light pt-5 pb-3 mt-5">
+<footer class="bg-dark text-Success pt-5 pb-3 mt-5">
     <div class="container">
         <div class="row g-4">
             {{-- Brand & Description --}}

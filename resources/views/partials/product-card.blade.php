@@ -70,12 +70,12 @@ FUNGSI: Komponen kartu produk yang reusable
 
         {{-- Stock Info --}}
         @if($product->stock <= 5 && $product->stock > 0)
-            <small class="text-warning mt-2">
+            <small class="text-danger mt-2">
                 <i class="bi bi-exclamation-triangle"></i>
                 Stok tinggal {{ $product->stock }}
             </small>
         @elseif($product->stock == 0)
-            <small class="text-danger mt-2">
+            <small class="text-warning mt-2">
                 <i class="bi bi-x-circle"></i>
                 Stok Habis
             </small>
@@ -91,7 +91,7 @@ FUNGSI: Komponen kartu produk yang reusable
 
             <button
                 type="submit"
-                class="btn btn-primary btn-sm w-100"
+                class="btn btn-dark btn-sm w-100"
                 @if($product->stock == 0) disabled @endif
             >
                 <i class="bi bi-cart-plus me-1"></i>
