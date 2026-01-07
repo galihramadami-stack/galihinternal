@@ -1,69 +1,100 @@
-{{-- resources/views/checkout/index.blade.php --}}
+@extends('layouts.app')
 
-<x-app-layout>
-    <div class="max-w-7xl mx-auto px-4 py-8">
-        <h1 class="text-2xl font-bold mb-8">Checkout</h1>
+@section('title', 'Checkout')
 
-        <form action="{{ route('checkout.store') }}" method="POST">
-            @csrf
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+@section('content')
+<div class="container py-5">
+    <h3 class="mb-4 fw-bold">🛒 Checkout</h3>
 
-                {{-- Form Alamat --}}
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-white p-6 rounded-lg shadow">
-                        <h2 class="text-lg font-semibold mb-4">Informasi Pengiriman</h2>
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
 
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Nama Penerima</label>
-                                <input type="text" name="name" value="{{ auth()->user()->name }}"
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                            </div>
+    @if($cart->items->isEmpty())
+        <div class="alert alert-info">
+            Keranjang kosong.
+            <a href="{{ route('catalog.index') }}">Belanja sekarang</a>
+        </div>
+    @else
+        <div class="row">
+            {{-- Ringkasan Pesanan --}}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="mb-3">Ringkasan Pesanan</h5>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
-                                <input type="text" name="phone"
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Alamat Lengkap</label>
-                                <textarea name="address" rows="3"
-                                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Order Summary --}}
-                <div class="lg:col-span-1">
-                    <div class="bg-white p-6 rounded-lg shadow sticky top-4">
-                        <h2 class="text-lg font-semibold mb-4">Ringkasan Pesanan</h2>
-
-                        <div class="space-y-4 max-h-60 overflow-y-auto mb-4">
+                        <ul class="list-group mb-3">
                             @foreach($cart->items as $item)
-                                <div class="flex justify-between text-sm">
-                                    <span>{{ $item->product->name }} x {{ $item->quantity }}</span>
-                                    <span class="font-medium">{{ number_format($item->subtotal, 0, ',', '.') }}</span>
-                                </div>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    {{ $item->product?->name ?? 'Produk dihapus' }}
+                                    x {{ $item->quantity }}
+
+                                    <span>
+                                        Rp {{ number_format($item->product->price * $item->quantity) }}
+                                    </span>
+                                </li>
                             @endforeach
-                        </div>
+                        </ul>
 
-                        <div class="border-t pt-4 space-y-2">
-                            <div class="flex justify-between text-base font-bold">
-                                <span>Total</span>
-                                <span>Rp {{ number_format($cart->items->sum('subtotal'), 0, ',', '.') }}</span>
-                            </div>
-                        </div>
+                        <p class="fw-bold mb-1">
+                            Ongkir: Rp {{ number_format($shippingCost) }}
+                        </p>
 
-                        <button type="submit"
-                                class="w-full mt-6 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700">
-                            Buat Pesanan
-                        </button>
+                        <p class="fw-bold mb-0">
+                            Total: Rp {{ number_format($total) }}
+                        </p>
                     </div>
                 </div>
-
             </div>
-        </form>
-    </div>
-</x-app-layout>
+
+            {{-- Form Checkout --}}
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="mb-3">Data Pengiriman</h5>
+
+                        <form action="{{ route('checkout.store') }}" method="POST">
+                            @csrf
+
+                            <div class="mb-3">
+                                <label class="form-label">Nama Penerima</label>
+                                <input type="text" name="name"
+                                    class="form-control @error('name') is-invalid @enderror"
+                                    value="{{ old('name', auth()->user()->name) }}" required>
+                                @error('name')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">No. HP</label>
+                                <input type="text" name="phone"
+                                    class="form-control @error('phone') is-invalid @enderror"
+                                    value="{{ old('phone', auth()->user()->phone) }}" required>
+                                @error('phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Alamat</label>
+                                <textarea name="address" rows="3"
+                                    class="form-control @error('address') is-invalid @enderror"
+                                    required>{{ old('address', auth()->user()->address) }}</textarea>
+                                @error('address')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                🛒 Bayar & Buat Pesanan
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+</div>
+@endsection

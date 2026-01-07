@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Events\OrderPaidEvent;
 
 class MidtransNotificationController extends Controller
 {
@@ -136,9 +137,14 @@ class MidtransNotificationController extends Controller
                 break;
 
             case 'cancel':
-                // Dibatalkan user/admin
-                $this->handleFailed($order, $payment, 'Pembayaran dibatalkan');
-                break;
+    if ($order->status !== 'cancelled') {
+        // Restock Logic
+        foreach ($order->items as $item) {
+            $item->product->increment('stock', $item->quantity);
+        }
+        $order->update(['payment_status' => 'failed', 'status' => 'cancelled']);
+    }
+    break;
 
             case 'refund':
             case 'partial_refund':

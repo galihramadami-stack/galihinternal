@@ -1,73 +1,159 @@
-<!doctype html>
-<html lang="en">
+{{-- ================================================
+     FILE: resources/views/layouts/admin.blade.php
+     FUNGSI: Master layout untuk halaman admin
+     ================================================ --}}
 
+<!DOCTYPE html>
+<html lang="id">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Modernize Free</title>
-    <link rel="shortcut icon" type="image/png" href="{{asset('assets/images/logos/favicon.png')}}" />
-    <link rel="stylesheet" href="{{asset('assets/css/styles.min.css')}}" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>@yield('title', 'Dashboard') - Admin Panel</title>
+
+    {{-- Google Fonts --}}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    {{-- Vite --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Custom Styles --}}
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.7);
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin: 4px 12px;
+            transition: all 0.2s;
+        }
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        .sidebar .nav-link i {
+            width: 24px;
+        }
+    </style>
+
     @stack('styles')
 </head>
+<body class="bg-light">
+    <div class="d-flex">
+        {{-- Sidebar --}}
+        <div class="sidebar d-flex flex-column" style="width: 260px;">
+            {{-- Brand --}}
+            <div class="p-3 border-bottom border-secondary">
+                <a href="{{ route('admin.dashboard') }}" class="text-white text-decoration-none d-flex align-items-center">
+                    <i class="bi bi-shop fs-4 me-2"></i>
+                    <span class="fs-5 fw-bold">frank lampard</span>
+                </a>
+            </div>
 
-<body>
-    <!--  Body Wrapper -->
-    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
-        data-sidebar-position="fixed" data-header-position="fixed">
-        <!-- Sidebar Start -->
-        @include('layouts.partials.sidebar')
-        <!--  Sidebar End -->
-        <!--  Main wrapper -->
-        <div class="body-wrapper">
-            <!--  Header Start -->
-            @include('layouts.partials.navbar')
-            <!--  Header End -->
-            <div class="container-fluid">
-                <!--  Row 1 -->
-                @include('partials.flash-messages')
-                @yield('content')
-                <footer class="mt-5">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body py-4 px-4">
-                            <div class="row align-items-center">
+            {{-- Navigation --}}
+            <nav class="flex-grow-1 py-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="{{ route('admin.dashboard') }}"
+                           class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                        </a>
+                    </li>
 
-                                {{-- LEFT --}}
-                                <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
-                                    <span class="fw-semibold">
-                                        <i class="bi bi-shop me-1 text-primary"></i>
-                                        Assalaam Store
-                                    </span>
-                                    <span class="text-muted">
-                                        &copy; {{ date('Y') }}. All rights reserved.
-                                    </span>
-                                </div>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.products.index') }}"
+                           class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
+                            <i class="bi bi-box-seam me-2"></i> Produk
+                        </a>
+                    </li>
 
-                                {{-- RIGHT --}}
-                                <div class="col-md-6 text-center text-md-end">
-                                    <span class="text-muted me-1">Designed & Developed by</span>
-                                    <a href="https://kaceinspace.vercel.app" target="_blank"
-                                        class="fw-semibold text-decoration-none text-primary">
-                                        Kace
-                                    </a>
-                                    <i class="bi bi-box-arrow-up-right ms-1 text-primary"></i>
-                                </div>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.categories.index') }}"
+                           class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                            <i class="bi bi-folder me-2"></i> Kategori
+                        </a>
+                    </li>
 
-                            </div>
-                        </div>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.orders.index') }}"
+                           class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                            <i class="bi bi-receipt me-2"></i> Pesanan
+                            {{-- Badge pendingCount --}}
+                            @if(!empty($pendingCount) && $pendingCount > 0)
+                                <span class="badge bg-warning text-dark ms-auto">{{ $pendingCount }}</span>
+                            @endif
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.users.index') }}"
+                           class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                            <i class="bi bi-people me-2"></i> Pengguna
+                        </a>
+                    </li>
+
+                    {{-- Section Laporan --}}
+                    <li class="nav-item mt-3">
+                        <span class="nav-link text-muted small text-uppercase">Laporan</span>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ route('admin.reports.sales') }}"
+                           class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+                            <i class="bi bi-graph-up me-2"></i> Laporan Penjualan
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            {{-- User Info --}}
+            <div class="p-3 border-top border-secondary">
+                <div class="d-flex align-items-center text-white">
+                    <img src="{{ auth()->user()->avatar_url ?? 'https://via.placeholder.com/36' }}"
+                         class="rounded-circle me-2" width="36" height="36" alt="Avatar">
+                    <div class="flex-grow-1">
+                        <div class="small fw-medium">{{ auth()->user()->name ?? 'Admin' }}</div>
+                        <div class="small text-muted">Administrator</div>
                     </div>
-                </footer>
+                </div>
             </div>
         </div>
+
+        {{-- Main Content --}}
+        <div class="flex-grow-1">
+            {{-- Top Bar --}}
+            <header class="bg-white shadow-sm py-3 px-4 d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">@yield('page-title', 'Dashboard')</h4>
+                <div class="d-flex align-items-center">
+                    <a href="{{ route('home') }}" class="btn btn-outline-secondary btn-sm me-2" target="_blank">
+                        <i class="bi bi-box-arrow-up-right me-1"></i> Lihat Toko
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-box-arrow-right me-1"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            </header>
+
+            {{-- Flash Messages --}}
+            <div class="px-4 pt-3">
+                @include('partials.flash-messages')
+            </div>
+
+            {{-- Page Content --}}
+            <main class="p-4">
+                @yield('content')
+            </main>
+        </div>
     </div>
-    <script src="{{asset('assets/libs/jquery/dist/jquery.min.js')}}"></script>
-    <script src="{{asset('assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js')}}"></script>
-    <script src="{{asset('assets/js/sidebarmenu.js')}}"></script>
-    <script src="{{asset('assets/js/app.min.js')}}"></script>
-    <script src="{{asset('assets/libs/apexcharts/dist/apexcharts.min.js')}}"></script>
-    <script src="{{asset('assets/libs/simplebar/dist/simplebar.js')}}"></script>
-    <script src="{{asset('assets/js/dashboard.js')}}"></script>
+
     @stack('scripts')
 </body>
-
 </html>

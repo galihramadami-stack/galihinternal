@@ -7,6 +7,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Services\MidtransService;
 
+
 class OrderController extends Controller
 {
     /**
@@ -28,48 +29,26 @@ class OrderController extends Controller
     /**
      * Menampilkan detail satu pesanan.
      */
-    public function show(Order $order, MidtransService $midtransService) // Tambahkan MidtransService di sini
+    public function show(Order $order, MidtransService $midtrans)
 {
+    // Security
     if ($order->user_id !== auth()->id()) {
-        abort(403, 'Anda tidak memiliki akses ke pesanan ini.');
+        abort(403);
     }
 
+    // Load relasi
     $order->load(['items.product', 'items.product.primaryImage']);
 
-    // LOGIKA BARU: Jika status pending dan belum ada token di DB, buatkan dulu
-    if ($order->status === 'pending' && !$order->snap_token) {
-        try {
-            $snapToken = $midtransService->createSnapToken($order);
-            $order->update(['snap_token' => $snapToken]);
-        } catch (\Exception $e) {
-            // Jika gagal konek ke Midtrans, biarkan null atau log error
-            $snapToken = null;
-        }
-    } else {
-        $snapToken = $order->snap_token;
+    // 🔥 BUAT SNAP TOKEN JIKA BELUM ADA
+    if ($order->payment_status === 'unpaid' && !$order->snap_token) {
+        $snapToken = $midtrans->createSnapToken($order);
+
+        $order->update([
+            'snap_token' => $snapToken
+        ]);
     }
 
-    return view('orders.show', compact('order', 'snapToken'));
+    return view('orders.show', compact('order'));
 }
-    /**
-     * Menampilkan halaman status pembayaran sukses.
-     */
-    public function success(Order $order)
-    {
-        if ($order->user_id !== auth()->id()) {
-            abort(403, 'Anda tidak memiliki akses ke pesanan ini.');
-        }
-        return view('orders.success', compact('order'));
-    }
 
-    /**
-     * Menampilkan halaman status pembayaran pending.
-     */
-    public function pending(Order $order)
-    {
-        if ($order->user_id !== auth()->id()) {
-            abort(403, 'Anda tidak memiliki akses ke pesanan ini.');
-        }
-        return view('orders.pending', compact('order'));
-    }
 }

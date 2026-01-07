@@ -1,38 +1,44 @@
 <?php
-// ========================================
-// FILE: config/services.php
-// FUNGSI: Konfigurasi untuk layanan pihak ketiga
-// ========================================
 
 return [
-    // ================================================
-    // Konfigurasi yang sudah ada (mailgun, postmark, dll)
-    // ================================================
 
-    'mailgun' => [
-        'domain' => env('MAILGUN_DOMAIN'),
-        'secret' => env('MAILGUN_SECRET'),
-        // ...
+    /*
+    |--------------------------------------------------------------------------
+    | Third Party Services
+    |--------------------------------------------------------------------------
+    */
+
+    'postmark' => [
+        'key' => env('POSTMARK_API_KEY'),
     ],
 
-    // ... konfigurasi lainnya ...
+    'resend' => [
+        'key' => env('RESEND_API_KEY'),
+    ],
 
-    // ================================================
-    // KONFIGURASI GOOGLE OAUTH
-    // ================================================
-    // Socialite akan membaca konfigurasi dari sini
-    // Nama key 'google' sesuai dengan nama driver
-    // ================================================
+    'ses' => [
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    ],
+
+    'slack' => [
+        'notifications' => [
+            'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
+            'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | GOOGLE OAUTH (SOCIALITE)
+    |--------------------------------------------------------------------------
+    */
 
     'google' => [
-        // Client ID dari Google Cloud Console
-        'client_id' => env('GOOGLE_CLIENT_ID'),
-        // ↑ env() membaca nilai dari file .env
-
-        // Client Secret dari Google Cloud Console
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
-
-        // URL callback (harus didaftarkan di Google Console)
-        'redirect' => env('GOOGLE_REDIRECT_URI'),
+        'redirect'      => env('GOOGLE_REDIRECT_URI'),
     ],
+
 ];

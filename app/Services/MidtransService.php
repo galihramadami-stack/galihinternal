@@ -4,10 +4,10 @@
 namespace App\Services;
 
 use App\Models\Order;
-use Exception;
 use Midtrans\Config;
 use Midtrans\Snap;
 use Midtrans\Transaction;
+use Exception;
 
 class MidtransService
 {
@@ -51,10 +51,10 @@ class MidtransService
         // 2. Customer Details (Opsional tapi Recommended)
         // Agar data user otomatis terisi di sistem Midtrans (email struk, dll)
         $customerDetails = [
-            'first_name'       => $order->user->name,
-            'email'            => $order->user->email,
-            'phone'            => $order->shipping_phone ?? $order->user->phone ?? '',
-            'billing_address'  => [
+            'first_name' => $order->user->name,
+            'email'      => $order->user->email,
+            'phone'      => $order->shipping_phone ?? $order->user->phone ?? '',
+            'billing_address' => [
                 'first_name' => $order->shipping_name,
                 'phone'      => $order->shipping_phone,
                 'address'    => $order->shipping_address,
