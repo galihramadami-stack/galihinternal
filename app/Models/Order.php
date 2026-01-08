@@ -10,18 +10,18 @@ class Order extends Model
     /** @use HasFactory<\Database\Factories\OrderFactory> */
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'order_number',
-        'status',
-        'payment_status',
-        'shipping_name',
-        'shipping_address',
-        'shipping_phone',
-        'total_amount',
-        'shipping_cost',
-        'snap_token',
-    ];
+   protected $fillable = [
+    'user_id',
+    'order_number',
+    'total_amount',
+    'shipping_cost',
+    'status',
+    'payment_status',
+    'snap_token', // <--- Tambahkan baris ini!
+    'shipping_name',
+    'shipping_phone',
+    'shipping_address',
+];
 
     public function items()
     {

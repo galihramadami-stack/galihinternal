@@ -3,7 +3,7 @@
      FUNGSI: Footer website
      ================================================ --}}
 
-<footer class="bg-dark text-Success pt-5 pb-3 mt-5">
+<footer class="bg-info text-light pt-5 pb-3 mt-5">
     <div class="container">
         <div class="row g-4">
             {{-- Brand & Description --}}
@@ -16,10 +16,10 @@
                     Belanja mudah, aman, dan nyaman.
                 </p>
                 <div class="d-flex gap-3 mt-3">
-                    <a href="#" class="text-secondary fs-5"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="text-secondary fs-5"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="text-secondary fs-5"><i class="bi bi-twitter-x"></i></a>
-                    <a href="#" class="text-secondary fs-5"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="text-dark fs-5"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-dark fs-5"><i class="bi bi-instagram"></i></a>
+                    <a href="#" class="text-dark fs-5"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="text-dark fs-5"><i class="bi bi-youtube"></i></a>
                 </div>
             </div>
 

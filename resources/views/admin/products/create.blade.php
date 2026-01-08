@@ -8,7 +8,7 @@
     <div class="col-lg-8">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h3 mb-0 text-gray-800">Tambah Produk Baru</h2>
-            <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('admin.products.index') }}" class="btn btn-outline-danger">
                 <i class="bi bi-arrow-left"></i> Kembali
             </a>
         </div>

@@ -9,7 +9,7 @@
 
 @section('content')
     {{-- Hero Section --}}
-    <section class="bg-primary text-white py-5">
+    <section class="bg-danger text-white py-5">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-6">
@@ -25,7 +25,7 @@
                     </a>
                 </div>
                 <div class="col-lg-6 d-none d-lg-block text-center">
-                    <img src="{{ asset('images/jarot.png') }}"
+                    <img src="{{ asset('images.jpg') }}"
                          alt="Shopping" class="img-fluid" style="max-height: 400px;">
                 </div>
             </div>
@@ -83,7 +83,7 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-md-6">
-                    <div class="card bg-warning text-dark border-0" style="min-height: 200px;">
+                    <div class="card bg-info text-dark border-0" style="min-height: 200px;">
                         <div class="card-body d-flex flex-column justify-content-center">
                             <h3>Flash Sale!</h3>
                             <p>Diskon hingga 50% untuk produk pilihan</p>
@@ -94,7 +94,7 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card bg-info text-white border-0" style="min-height: 200px;">
+                    <div class="card bg-success text-white border-0" style="min-height: 200px;">
                         <div class="card-body d-flex flex-column justify-content-center">
                             <h3>Member Baru?</h3>
                             <p>Dapatkan voucher Rp 50.000 untuk pembelian pertama</p>
